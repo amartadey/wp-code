@@ -618,7 +618,439 @@ add_action('wp_footer', function() {
         echo ' -->';
     }
 });`
-            }
+            },
+            {
+        title: "Which Template is Being Used?",
+        category: "templates",
+        icon: "carbon:document-view",
+        description: "Display the current template file being loaded in the page source (visible only to administrators).",
+        code: `add_action('wp_head', function() {
+    if (current_user_can('administrator')) {
+        global $template;
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Enable WP Debug Mode (wp-config.php)",
+        category: "debug",
+        icon: "carbon:debug",
+        description: "Add to wp-config.php to enable debug mode and log errors to debug.log file.",
+        code: `define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+define('WP_DEBUG_DISPLAY', false);
+@ini_set('display_errors', 0);`
+    },
+    {
+        title: "Show All Registered Hooks",
+        category: "hooks",
+        icon: "carbon:flow",
+        description: "Display all hooks that have been registered on the current page (heavy, use with caution).",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wp_filter;
+        echo '<pre>';
+        print_r(array_keys($wp_filter)); // Only prints hook names for better performance
+        echo '</pre>';
+    }
+});`
+    },
+    {
+        title: "Display Query Variables",
+        category: "debug",
+        icon: "carbon:search",
+        description: "Show the current WP_Query variables for debugging query issues.",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wp_query;
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Log Database Queries (wp-config.php + PHP)",
+        category: "database",
+        icon: "carbon:data-base",
+        description: "Enable query logging in wp-config and display queries at the footer (heavy).",
+        code: `// Add to wp-config.php
+define('SAVEQUERIES', true);
+
+// Add to theme's functions.php
+add_action('wp_footer', function() {
+    if (current_user_can('administrator') && defined('SAVEQUERIES') && SAVEQUERIES) {
+        global $wpdb;
+        echo '';
+        echo '<pre style="max-height: 300px; overflow: auto;">';
+        foreach($wpdb->queries as $query) {
+             echo esc_html($query[0]) . ' (' . $query[1] . 's) \n\n';
+        }
+        echo '</pre>';
+    }
+});`
+    },
+    {
+        title: "Show Template Hierarchy Paths",
+        category: "templates",
+        icon: "carbon:tree-view",
+        description: "Display the files WordPress is looking for during the template loading process.",
+        code: `add_filter('template_include', function($template) {
+    if (current_user_can('administrator')) {
+        global $wp_query;
+        $files = array_filter( $wp_query->get_template_handlers(), 'file_exists' );
+        echo '';
+        echo '';
+    }
+    return $template;
+});`
+    },
+    {
+        title: "Display Current User Roles",
+        category: "user",
+        icon: "carbon:user-role",
+        description: "Show all roles for the current logged-in user.",
+        code: `add_action('wp_footer', function() {
+    if (is_user_logged_in() && current_user_can('administrator')) {
+        $user = wp_get_current_user();
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Show Registered Menus",
+        category: "templates",
+        icon: "carbon:menu",
+        description: "Display all registered navigation menus and their locations.",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $menus = get_registered_nav_menus();
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Display Enqueued Scripts & Styles",
+        category: "debug",
+        icon: "carbon:code",
+        description: "List the handles of all enqueued scripts and stylesheets on the current page.",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wp_scripts, $wp_styles;
+        echo '';
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Show Post Meta Data",
+        category: "debug",
+        icon: "carbon:document-tasks",
+        description: "Display all custom fields/meta data for the current post.",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator') && is_singular()) {
+        $post_meta = get_post_meta(get_the_ID());
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Display Active Plugins",
+        category: "debug",
+        icon: "carbon:plug",
+        description: "Show a list of all currently active plugins.",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $plugins = get_option('active_plugins');
+        $plugin_names = array_map(function($plugin) {
+            return basename($plugin, '.php');
+        }, $plugins);
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Show Current Sidebar Widgets",
+        category: "templates",
+        icon: "carbon:grid-view",
+        description: "Display the IDs of registered sidebars and the widgets inside them.",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $sidebars = wp_get_sidebars_widgets();
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Memory Usage Tracker",
+        category: "performance",
+        icon: "carbon:dashboard",
+        description: "Display current memory usage and peak memory usage.",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Query Monitor (Manual)",
+        category: "performance",
+        icon: "carbon:analytics",
+        description: "Display page generation time and number of database queries.",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wpdb;
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Show Rewrite Rules",
+        category: "debug",
+        icon: "carbon:link",
+        description: "Display all WordPress rewrite rules for debugging permalink issues (heavy, use with caution).",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wp_rewrite;
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Show Active Conditional Tags",
+        category: "templates",
+        icon: "carbon:tag",
+        description: "Display which key conditional tags are true for the current page.",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $conditionals = [
+            'is_home', 'is_front_page', 'is_single', 'is_page',
+            'is_archive', 'is_category', 'is_tag', 'is_search', 'is_404'
+        ];
+        $active = [];
+        foreach($conditionals as $cond) {
+            if(function_exists($cond) && call_user_func($cond)) $active[] = $cond;
+        }
+        echo '';
+    }
+});`
+    },
+    // --- Newly Added: Debug & Configuration ---
+    {
+        title: "Disable All Plugins Safely",
+        category: "debug",
+        icon: "carbon:plug-off",
+        description: "Add to wp-config.php to temporarily disable all plugins *without* deactivating them in the database.",
+        code: `define('DISABLE_PLUGINS', true);`
+    },
+    {
+        title: "Force Admin-Only Debug Output",
+        category: "debug",
+        icon: "carbon:user-avatar-filled",
+        description: "A utility function to print array/object output only to logged-in administrators (for functions.php).",
+        code: `function wp_debug_admin_only($var) {
+    if (current_user_can('administrator')) {
+        echo '<pre class="admin-debug" style="background: #fff; padding: 10px; border: 1px solid #ccc; max-height: 400px; overflow: auto; color: #000; z-index: 9999; position: relative;">';
+        print_r($var);
+        echo '</pre>';
+    }
+}
+
+// Usage: add_action('wp_footer', function() { wp_debug_admin_only(get_post()); });`
+    },
+    {
+        title: "Increase PHP Memory Limit (wp-config.php)",
+        category: "performance",
+        icon: "carbon:data-blob",
+        description: "Set a higher PHP memory limit (e.g., 256M) in wp-config.php before 'That's all, stop editing!'",
+        code: `define('WP_MEMORY_LIMIT', '256M');`
+    },
+    {
+        title: "Increase Max Execution Time",
+        category: "performance",
+        icon: "carbon:time-slot",
+        description: "Increase PHP max execution time for long-running processes (e.g., large imports). Add to functions.php.",
+        code: `set_time_limit(300); // 300 seconds (5 minutes)`
+    },
+    {
+        title: "Remove WordPress Version Number (Security)",
+        category: "security",
+        icon: "carbon:security",
+        description: "Hides the WordPress version number from the `<head>` and RSS feeds, reducing public fingerprinting.",
+        code: `remove_action('wp_head', 'wp_generator');
+add_filter('the_generator', '__return_false');`
+    },
+    {
+        title: "Disable File Editing in Admin (Security)",
+        category: "security",
+        icon: "carbon:edit-off",
+        description: "Prevents theme and plugin file editing from the WordPress admin dashboard (wp-config.php).",
+        code: `define('DISALLOW_FILE_EDIT', true);`
+    },
+    {
+        title: "Force SSL/HTTPS Login (wp-config.php)",
+        category: "security",
+        icon: "carbon:locked",
+        description: "Forces a secure (SSL/HTTPS) connection for all administrative login and dashboard areas.",
+        code: `define('FORCE_SSL_ADMIN', true);`
+    },
+    // --- Newly Added: Template & Content ---
+    {
+        title: "Force Re-save Permalinks",
+        category: "templates",
+        icon: "carbon:link-chain",
+        description: "Use once to flush rewrite rules, fixing 404s after registering custom post types/taxonomies.",
+        code: `add_action('init', 'my_flush_rewrite_rules', 10);
+function my_flush_rewrite_rules() {
+    flush_rewrite_rules();
+}`
+    },
+    {
+        title: "Get Custom Post Type Loop",
+        category: "templates",
+        icon: "carbon:repeat",
+        description: "Standard loop to query and display content from a custom post type (e.g., 'product').",
+        code: `<?php 
+$args = array(
+    'post_type' => 'product',
+    'posts_per_page' => 5
+);
+$products = new WP_Query($args);
+
+if ($products->have_posts()) :
+    while ($products->have_posts()) : $products->the_post();
+        // Display post title, content, etc.
+        the_title('<h2>', '</h2>');
+    endwhile;
+    wp_reset_postdata(); // Restore original Post Data
+endif; 
+?>`
+    },
+    {
+        title: "Remove 'Private' Prefix from Titles",
+        category: "templates",
+        icon: "carbon:unlocked",
+        description: "Stops WordPress from adding 'Private: ' to the title of private posts.",
+        code: `add_filter('private_title_format', function() {
+    return '%s';
+});`
+    },
+    // --- Newly Added: Database & Custom Data ---
+    {
+        title: "Fetch Specific Global Option",
+        category: "database",
+        icon: "carbon:settings-adjust",
+        description: "Retrieve a single value from the `wp_options` table (e.g., 'blogname').",
+        code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $option_value = get_option('blogname');
+        echo '';
+    }
+});`
+    },
+    {
+        title: "Delete All Transient Caches",
+        category: "database",
+        icon: "carbon:trash-can",
+        description: "Use this function once (or manually via CLI) to clear transient cache data, often fixing stale data issues.",
+        code: `function delete_all_transients() {
+    global $wpdb;
+    $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_transient\_%'");
+    $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_site\_transient\_%'");
+    // Remove the action after running once to prevent continuous execution
+    remove_action('init', 'delete_all_transients');
+}
+add_action('init', 'delete_all_transients');`
+    },
+    // --- Newly Added: Hooks & Actions ---
+    {
+        title: "Force Remove Specific Action",
+        category: "hooks",
+        icon: "carbon:flow-stream",
+        description: "Remove an action from a theme or plugin hook. You must know the function name and priority.",
+        code: `// Example: Remove a function called 'some_plugin_function' from 'wp_head' hook, assuming priority 10
+add_action('wp_loaded', function() {
+    remove_action('wp_head', 'some_plugin_function', 10);
+});`
+    },
+    {
+        title: "Disable Admin Bar for Non-Admins",
+        category: "hooks",
+        icon: "carbon:user-access",
+        description: "Hides the WordPress admin bar for all users except Administrators.",
+        code: `add_filter('show_admin_bar', function($show_admin_bar) {
+    if (current_user_can('administrator')) {
+        return $show_admin_bar;
+    }
+    return false;
+});`
+    },
+    // --- Newly Added: AJAX & REST API (New Category) ---
+    {
+        title: "Register Basic WP AJAX Handler",
+        category: "ajax",
+        icon: "carbon:api",
+        description: "A boilerplate for handling a logged-in user AJAX request on the 'my_action' hook.",
+        code: `// Add to functions.php
+add_action('wp_ajax_my_action', 'my_ajax_handler');
+
+function my_ajax_handler() {
+    // Check nonce for security
+    check_ajax_referer('my_nonce_key', 'security');
+
+    // Process data...
+    $data = sanitize_text_field($_POST['data_key']);
+    $result = ['message' => 'Success!', 'received' => $data];
+
+    wp_send_json_success($result);
+    wp_die();
+}`
+    },
+    {
+        title: "Register Basic REST API Endpoint",
+        category: "ajax",
+        icon: "carbon:rest-api",
+        description: "Register a simple, public GET REST API endpoint at '/my-namespace/v1/my-data'.",
+        code: `add_action('rest_api_init', function() {
+    register_rest_route('my-namespace/v1', '/my-data', array(
+        'methods' => 'GET',
+        'callback' => 'my_api_callback',
+        'permission_callback' => '__return_true' // Public access
+    ));
+});
+
+function my_api_callback(WP_REST_Request $request) {
+    return new WP_REST_Response(['status' => 'ok', 'data' => 'Hello from REST API'], 200);
+}`
+    },
+    // --- Newly Added: User & Roles ---
+    {
+        title: "Add New Custom User Role",
+        category: "user",
+        icon: "carbon:user-settings",
+        description: "Register a new 'editor_lite' role with reduced capabilities. Run once then remove.",
+        code: `add_action('init', function() {
+    add_role(
+        'editor_lite', // Role ID
+        'Lite Editor', // Display name
+        array(
+            'read' => true,
+            'edit_posts' => true,
+            'delete_posts' => true,
+            'upload_files' => true
+        )
+    );
+});`
+    },
+    {
+        title: "Remove Default User Role",
+        category: "user",
+        icon: "carbon:user-remove",
+        description: "Remove a default role (e.g., 'Author'). Run once then remove.",
+        code: `add_action('init', function() {
+    if (get_role('author')) {
+        remove_role('author');
+    }
+});`
+    }
         ];
 
         function renderSnippets(filteredSnippets) {

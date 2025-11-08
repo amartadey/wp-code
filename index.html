@@ -264,7 +264,361 @@
 
     <script>
         const snippets = [
-            
+            {
+                title: "Which Template is Being Used?",
+                category: "templates",
+                icon: "carbon:document-view",
+                description: "Display the current template file being loaded in the page source (visible only to administrators).",
+                code: `add_action('wp_head', function() {
+    if (current_user_can('administrator')) {
+        global $template;
+        echo '<!-- Template: ' . basename($template) . ' -->';
+    }
+});`
+            },
+            {
+                title: "Enable WP Debug Mode",
+                category: "debug",
+                icon: "carbon:debug",
+                description: "Add to wp-config.php to enable debug mode and log errors to debug.log file.",
+                code: `define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+define('WP_DEBUG_DISPLAY', false);
+@ini_set('display_errors', 0);`
+            },
+            {
+                title: "Show All Registered Hooks",
+                category: "hooks",
+                icon: "carbon:flow",
+                description: "Display all hooks that have been registered on the current page.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wp_filter;
+        echo '<pre>';
+        print_r($wp_filter);
+        echo '</pre>';
+    }
+});`
+            },
+            {
+                title: "Display Query Variables",
+                category: "debug",
+                icon: "carbon:search",
+                description: "Show the current WP_Query variables for debugging query issues.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wp_query;
+        echo '<!--';
+        print_r($wp_query->query_vars);
+        echo '-->';
+    }
+});`
+            },
+            {
+                title: "Log Database Queries",
+                category: "database",
+                icon: "carbon:data-base",
+                description: "Enable query logging and display all database queries at the footer.",
+                code: `// Add to wp-config.php
+define('SAVEQUERIES', true);
+
+// Add to theme
+add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wpdb;
+        echo '<pre>';
+        print_r($wpdb->queries);
+        echo '</pre>';
+    }
+});`
+            },
+            {
+                title: "Show Template Hierarchy",
+                category: "templates",
+                icon: "carbon:tree-view",
+                description: "Display which templates WordPress is looking for in the template hierarchy.",
+                code: `add_filter('template_include', function($template) {
+    if (current_user_can('administrator')) {
+        global $wp_query;
+        echo '<!-- Template Hierarchy: ';
+        print_r($wp_query->query_vars);
+        echo ' Using: ' . basename($template) . ' -->';
+    }
+    return $template;
+});`
+            },
+            {
+                title: "Display Current User Roles",
+                category: "user",
+                icon: "carbon:user-role",
+                description: "Show all roles and capabilities for the current logged-in user.",
+                code: `add_action('wp_footer', function() {
+    if (is_user_logged_in()) {
+        $user = wp_get_current_user();
+        echo '<!-- User Roles: ';
+        print_r($user->roles);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Show Registered Menus",
+                category: "templates",
+                icon: "carbon:menu",
+                description: "Display all registered navigation menus and their locations.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $menus = get_registered_nav_menus();
+        echo '<!-- Registered Menus: ';
+        print_r($menus);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Display Enqueued Scripts & Styles",
+                category: "debug",
+                icon: "carbon:code",
+                description: "List all enqueued scripts and stylesheets on the current page.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wp_scripts, $wp_styles;
+        echo '<!-- Scripts: ';
+        print_r($wp_scripts->queue);
+        echo ' Styles: ';
+        print_r($wp_styles->queue);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Show Post Meta Data",
+                category: "debug",
+                icon: "carbon:document-tasks",
+                description: "Display all custom fields/meta data for the current post.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator') && is_singular()) {
+        $post_meta = get_post_meta(get_the_ID());
+        echo '<!-- Post Meta: ';
+        print_r($post_meta);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Display Active Plugins",
+                category: "debug",
+                icon: "carbon:plug",
+                description: "Show a list of all currently active plugins.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $plugins = get_option('active_plugins');
+        echo '<!-- Active Plugins: ';
+        print_r($plugins);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Show Current Sidebar Widgets",
+                category: "templates",
+                icon: "carbon:grid-view",
+                description: "Display all widgets registered in each sidebar.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wp_registered_sidebars;
+        echo '<!-- Sidebars: ';
+        print_r($wp_registered_sidebars);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Memory Usage Tracker",
+                category: "performance",
+                icon: "carbon:dashboard",
+                description: "Display current memory usage and peak memory usage.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        echo '<!-- Memory: ' . 
+             size_format(memory_get_usage()) . 
+             ' | Peak: ' . 
+             size_format(memory_get_peak_usage()) . 
+             ' -->';
+    }
+});`
+            },
+            {
+                title: "Query Monitor (Manual)",
+                category: "performance",
+                icon: "carbon:analytics",
+                description: "Display page generation time and number of queries.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wpdb;
+        echo '<!-- Queries: ' . $wpdb->num_queries . 
+             ' | Time: ' . timer_stop() . 's -->';
+    }
+});`
+            },
+            {
+                title: "Show Rewrite Rules",
+                category: "debug",
+                icon: "carbon:link",
+                description: "Display all WordPress rewrite rules for debugging permalink issues.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $wp_rewrite;
+        echo '<!-- Rewrite Rules: ';
+        print_r($wp_rewrite->rules);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Show Conditional Tags",
+                category: "templates",
+                icon: "carbon:tag",
+                description: "Display which conditional tags are true for the current page.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $conditionals = [
+            'is_home', 'is_front_page', 'is_single', 
+            'is_page', 'is_archive', 'is_category'
+        ];
+        $active = [];
+        foreach($conditionals as $cond) {
+            if($cond()) $active[] = $cond;
+        }
+        echo '<!-- Conditionals: ' . implode(', ', $active) . ' -->';
+    }
+});`
+            },
+            {
+                title: "Display Current Taxonomy Terms",
+                category: "templates",
+                icon: "carbon:classifier",
+                description: "Show all taxonomy terms for the current post.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator') && is_singular()) {
+        $taxonomies = get_post_taxonomies();
+        $terms = [];
+        foreach($taxonomies as $tax) {
+            $terms[$tax] = wp_get_post_terms(get_the_ID(), $tax);
+        }
+        echo '<!-- Terms: ';
+        print_r($terms);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Show Body Classes",
+                category: "templates",
+                icon: "carbon:document-blank",
+                description: "Display all body classes WordPress is adding to the current page.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $classes = get_body_class();
+        echo '<!-- Body Classes: ' . implode(', ', $classes) . ' -->';
+    }
+});`
+            },
+            {
+                title: "Display Current User Capabilities",
+                category: "user",
+                icon: "carbon:security",
+                description: "Show all capabilities for the currently logged-in user.",
+                code: `add_action('wp_footer', function() {
+    if (is_user_logged_in() && current_user_can('administrator')) {
+        $user = wp_get_current_user();
+        echo '<!-- User Caps: ';
+        print_r($user->allcaps);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Show Custom Post Type Details",
+                category: "debug",
+                icon: "carbon:data-class",
+                description: "Display all registered custom post types and their settings.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $post_types = get_post_types(['_builtin' => false], 'objects');
+        echo '<!-- Custom Post Types: ';
+        print_r($post_types);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Display Image Sizes",
+                category: "debug",
+                icon: "carbon:image",
+                description: "Show all registered image sizes in WordPress.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $_wp_additional_image_sizes;
+        echo '<!-- Image Sizes: ';
+        print_r($_wp_additional_image_sizes);
+        echo ' -->';
+    }
+});`
+            },
+            {
+                title: "Show Global Variables",
+                category: "debug",
+                icon: "carbon:data-reference",
+                description: "Display common WordPress global variables for debugging.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        global $post, $wp_query, $wpdb;
+        echo '<!-- Globals - Post ID: ' . (isset($post) ? $post->ID : 'none') . 
+             ' | Query Vars: ' . count($wp_query->query_vars) . 
+             ' | DB Queries: ' . $wpdb->num_queries . ' -->';
+    }
+});`
+            },
+            {
+                title: "Display Theme Directory Path",
+                category: "templates",
+                icon: "carbon:folder",
+                description: "Show the current theme's directory paths for debugging.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        echo '<!-- Theme: ' . get_stylesheet_directory() . 
+             ' | Parent: ' . get_template_directory() . ' -->';
+    }
+});`
+            },
+            {
+                title: "Show Current Page ID",
+                category: "debug",
+                icon: "carbon:identification",
+                description: "Display the current page/post ID and type.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $id = get_queried_object_id();
+        $type = get_post_type($id);
+        echo '<!-- Page ID: ' . $id . ' | Type: ' . $type . ' -->';
+    }
+});`
+            },
+            {
+                title: "Display Cron Jobs",
+                category: "debug",
+                icon: "carbon:time",
+                description: "Show all scheduled WordPress cron jobs.",
+                code: `add_action('wp_footer', function() {
+    if (current_user_can('administrator')) {
+        $cron = _get_cron_array();
+        echo '<!-- Cron Jobs: ';
+        print_r($cron);
+        echo ' -->';
+    }
+});`
+            },
             {
         title: "Which Template is Being Used?",
         category: "templates",
